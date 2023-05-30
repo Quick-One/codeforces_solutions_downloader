@@ -1,5 +1,9 @@
 {
     "PyPy 3-64": "py",
     "Python 3": "py",
-    "GNU C++17": "cpp"
+    "GNU C++17": "cpp",
+    "GNU C++20 (64)" : "cpp",
+    "PyPy 3" : "py",
+    "GNU C++17 (64)": "cpp",
+    "GNU C++14": "cpp"
 }

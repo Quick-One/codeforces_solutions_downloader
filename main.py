@@ -5,10 +5,12 @@ from parsing_utils import flatten_json, parse_contest_name
 from pathlib import Path
 from submission_parser import CFSubmission
 from time import sleep
+from tqdm import tqdm
 
-USER_NAME = 'Quick-One'
+USER_NAME = input('Enter your codeforces handle: ').strip()
 
-### Get submissions
+
+# Get submissions
 submissions_URL = f'https://codeforces.com/api/user.status?handle={USER_NAME}&from=1&count=100000'
 response = requests.get(submissions_URL).json()
 
@@ -29,7 +31,7 @@ submissions_cols = ['id', 'contestId', 'problem_index', 'programmingLanguage']
 submissions = submissions[submissions_cols]
 
 
-### Get contests
+# Get contests
 contests_URL = r'https://codeforces.com/api/contest.list?gym=false'
 response = requests.get(contests_URL).json()
 
@@ -39,11 +41,12 @@ if response['status'] != 'OK':
 contests = response['result']
 contests = [flatten_json(contest) for contest in contests]
 contests = pandas.DataFrame(contests)
-contests_cols =['id', 'name', 'type']
+contests_cols = ['id', 'name', 'type']
 contests = contests[contests_cols]
 contests['name'] = contests['name'].str.lower()
 
-### Merge submissions and contests
+
+# Merge submissions and contests
 merged = submissions.merge(contests, left_on='contestId', right_on='id')
 merged = merged.drop(columns=['id_y'])
 coulmn_rename = {
@@ -57,16 +60,35 @@ merged['folderName'] = merged['contestName'].apply(parse_contest_name)
 with open('file_extensions.json', 'r') as f:
     file_extensions = json.load(f)
 
+unknown_languages = []
+for language in merged['programmingLanguage'].unique():
+    if language not in file_extensions:
+        unknown_languages.append(language)
+
+if len(unknown_languages) > 0:
+    print(f'Unknown languages: {unknown_languages}')
+    print('Please add them to file_extensions.json')
+    exit()
+
+failed = []
 p = Path.cwd() / f'CF_{USER_NAME}'
-for index, row in merged.iterrows():
+for index, row in tqdm(merged.iterrows(), total=len(merged)):
     path_soln = p / row['folderName']
     path_soln.mkdir(exist_ok=True, parents=True)
 
     extension = file_extensions[row['programmingLanguage']]
-
     file_path = path_soln / f'{row["problemIndex"]}.{extension}'
     if file_path.exists():
         continue
-    CFSubmission(row['contestId'], row['submissionId']).save(file_path)
-    print(f'Saved {file_path}')
-    sleep(0.1)
+
+    submission = CFSubmission(row['contestId'], row['submissionId'])
+    if submission.get_code().strip() == '':
+        failed.append((row['contestId'], row['submissionId']))
+    else:
+        submission.save(file_path)
+    sleep(3)
+
+if len(failed) > 0:
+    print(f'Failed to download {len(failed)} submissions. Rerun the script to download them.')
+else:
+    print('All submissions downloaded successfully.')
