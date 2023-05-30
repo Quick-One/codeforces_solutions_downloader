@@ -1,7 +1,9 @@
 import re
 
+
 def flatten_json(y):
     out = {}
+
     def flatten(x, name=''):
         if type(x) is dict:
             for a in x:
@@ -16,6 +18,7 @@ def flatten_json(y):
     flatten(y)
     return out
 
+
 def parse_contest_name(name):
     
     # codeforces round {} (div. {},...)
@@ -26,7 +29,7 @@ def parse_contest_name(name):
         division = match.group(2)
         contest_name = f'{contest_id}_div{division}'
         return contest_name
-    
+
     # educational codeforces round {} ...
     edu_pattern = r'educational codeforces round (\d+)'
     match = re.match(edu_pattern, name)
@@ -43,11 +46,10 @@ def parse_contest_name(name):
         contest_name = f'{contest_id}'
         return contest_name
 
-
     # remove everything between the parenthesis and the parenthesis itself
     pattern = r'\(.*\)'
     name = re.sub(pattern, '', name)
-    
+
     # make name folder name friendly
     name = name.strip()
     safe_name = ''

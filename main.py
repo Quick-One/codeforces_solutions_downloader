@@ -1,11 +1,13 @@
+import json
+from pathlib import Path
+from time import sleep
+
 import pandas
 import requests
-import json
-from parsing_utils import flatten_json, parse_contest_name
-from pathlib import Path
-from submission_parser import CFSubmission
-from time import sleep
 from tqdm import tqdm
+
+from parsing_utils import flatten_json, parse_contest_name
+from submission_parser import CFSubmission
 
 USER_NAME = input('Enter your codeforces handle: ').strip()
 
