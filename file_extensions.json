@@ -2,8 +2,12 @@
     "PyPy 3-64": "py",
     "Python 3": "py",
     "GNU C++17": "cpp",
-    "GNU C++20 (64)" : "cpp",
-    "PyPy 3" : "py",
+    "GNU C++20 (64)": "cpp",
+    "PyPy 3": "py",
     "GNU C++17 (64)": "cpp",
-    "GNU C++14": "cpp"
+    "GNU C++14": "cpp",
+    "PyPy 2": "py",
+    "Python 2": "py",
+    "Java 11": "java",
+    "Secret 2021": "out"
 }
